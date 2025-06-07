@@ -1,39 +1,70 @@
 import 'package:flutter/material.dart';
-import 'package:newsapp/screens/HomeScreen.dart';
-import 'package:newsapp/services/dio_client.dart';
-import 'package:newsapp/widgets/LoginView.dart';
+import 'package:newsapp/ViewModel/LoginViewModel.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
-  void _login(BuildContext context, String email, String password) async {
-    try {
-      final response = await DioClient.dio.post(
-        'http://192.168.1.9:3000/login',
-        data: {
-          'email': 'user@example.com',
-          'password': 'password123',
-        },
-      );
-      print('Login success: ${response.data}');
-
-      // Navigate to home
-      Navigator.pushReplacement(
-        context, 
-        MaterialPageRoute(builder: (context) => HomeScreen())
-      );
-    } catch (e) {
-      print('Login error: $e');
-       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login failed')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    return LoginView(
-      onLogin: (email, password) => _login(context, email, password),
+    return ChangeNotifierProvider(
+      create: (_) => LoginViewModel(),
+      child: Consumer<LoginViewModel>(
+        builder: (context, viewModel, _) {
+          return Scaffold(
+            appBar: AppBar(title: Text("Login")),
+            body: SingleChildScrollView(
+              padding: EdgeInsets.all(16),
+              child: Column(
+                children: [
+                  SizedBox(height: 100),
+                  Image.asset('assets/images/Instagram.png', height: 100),
+                  SizedBox(height: 20),
+                  TextField(
+                    controller: viewModel.emailController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Email',
+                    ),
+                  ),
+                  SizedBox(height: 15),
+                  TextField(
+                    controller: viewModel.passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Password',
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  viewModel.isLoading
+                      ? CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: () => viewModel.login(context),
+                          child: Text("Log in"),
+                        ),
+                  SizedBox(height: 40),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Forgot your details? '),
+                      GestureDetector(
+                        onTap: () {
+                          print('Get help tapped');
+                        },
+                        child: Text(
+                          'Get help logging in',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 }

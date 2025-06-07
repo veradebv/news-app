@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:newsapp/screens/HomeScreen.dart';
 import 'package:newsapp/screens/LoginScreen.dart';
 
 void main() {
