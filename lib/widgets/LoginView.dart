@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:newsapp/screens/HomeScreen.dart';
 
 class LoginView extends StatefulWidget {
-  const LoginView({super.key});
+  final Function(String email, String password) onLogin;
+
+  const LoginView({super.key, required this.onLogin});
 
   @override
   State<LoginView> createState() => _LoginViewState();
@@ -10,6 +11,9 @@ class LoginView extends StatefulWidget {
 }
 
 class _LoginViewState extends State<LoginView> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,12 +63,11 @@ class _LoginViewState extends State<LoginView> {
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20.0),
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen())
-                        );
-                    }, 
+                   onPressed: () {
+                    final email = emailController.text.trim();
+                    final password = passwordController.text.trim();
+                    widget.onLogin(email, password);
+                  },
                     child: Text(
                       'Log in', 
                       style: TextStyle(color: Colors.black, fontSize: 20)
