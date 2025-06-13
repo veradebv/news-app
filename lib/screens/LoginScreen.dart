@@ -18,7 +18,7 @@ class LoginScreen extends StatelessWidget {
               child: Column(
                 children: [
                   SizedBox(height: 100),
-                  Image.asset('assets/images/Instagram.png', height: 100),
+                  Image.asset("assets/images/Instagram.png", height: 100),
                   SizedBox(height: 20),
                   TextField(
                     controller: viewModel.emailController,
