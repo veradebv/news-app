@@ -1,29 +1,38 @@
 import 'package:flutter/material.dart';
-import 'package:newsapp/constant/material.dart';
-
 
 class GrabIconMenu extends StatelessWidget {
+  final String image;
+  final String title;
+
   const GrabIconMenu({
     Key? key,
-    required this.title,
     required this.image,
-    this.size = 60,
+    required this.title,
   }) : super(key: key);
 
-  final String title;
-  final String image;
-  final double size;
+  bool isNetworkImage(String path) {
+    return path.startsWith('http://') || path.startsWith('https://');
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: <Widget>[
-        Image(
-          height: size,
-          image: AssetImage(image),
-        ),
-        SizedBox(height: 5),
-        Text(title, style: kGrabBlackRegularSmall.copyWith(fontSize: 15)),
+      children: [
+        isNetworkImage(image)
+            ? Image.network(
+                image,
+                width: 40,
+                height: 40,
+                errorBuilder: (context, error, stackTrace) =>
+                    Icon(Icons.broken_image, size: 40),
+              )
+            : Image.asset(
+                image,
+                width: 40,
+                height: 40,
+              ),
+        SizedBox(height: 8),
+        Text(title, style: TextStyle(fontSize: 14)),
       ],
     );
   }
