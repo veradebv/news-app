@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class MenuItem {
   final String title;
   final int? total;

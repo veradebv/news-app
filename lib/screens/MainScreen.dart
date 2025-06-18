@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:newsapp/models/menu_item.dart'; // Ensure this model exists and includes `title`, `image`, and optional `description`.
+import 'package:newsapp/models/menu_item.dart';
+import 'package:newsapp/screens/AddMenuScreen.dart';
 
 class MainScreen extends StatefulWidget {
   @override
@@ -24,8 +25,8 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Menu Cards"),
-        backgroundColor: Color(0xFF138880),
+        title: Text("Folders"),
+        backgroundColor: Color.fromARGB(255, 255, 255, 255),
       ),
       body: FutureBuilder<List<MenuItem>>(
         future: fetchMenus(),
@@ -36,60 +37,95 @@ class _MainScreenState extends State<MainScreen> {
             return Center(child: Text('Error loading menu items'));
           } else {
             final menus = snapshot.data!;
-            return ListView.builder(
+            return ListView(
               padding: const EdgeInsets.all(16),
-              itemCount: menus.length,
-              itemBuilder: (context, index) {
-                final menu = menus[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  elevation: 4,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            menu.image,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) =>
-                                Icon(Icons.image_not_supported, size: 80),
+              children: [
+                // Static Add Folder Card
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AddMenuScreen()),
+                    );
+                  },
+                  child: Card(
+                    color: Colors.teal.shade100,
+                    elevation: 3,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      child: Row(
+                        children: [
+                          Icon(Icons.create_new_folder, size: 40, color: Colors.teal[900]),
+                          SizedBox(width: 16),
+                          Text(
+                            "Add New Folder",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.teal[900],
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                menu.title,
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8),
-                              Text(
-                                menu.total.toString() ?? "No description available",
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                );
-              },
+                ),
+
+                // API-loaded Menu Cards
+                ...menus.map((menu) {
+                  return Card(
+                    margin: const EdgeInsets.only(top: 16),
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              menu.image,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Icon(Icons.image_not_supported, size: 80),
+                            ),
+                          ),
+                          SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  menu.title,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  menu.total?.toString() ?? "No description available",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.grey[700],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ],
             );
           }
         },
