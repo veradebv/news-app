@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:newsapp/constant/material.dart';
-import 'package:newsapp/models/menu_item.dart';
+import 'package:newsapp/models/menu_item.dart'; // Ensure this model exists and includes `title`, `image`, and optional `description`.
 
 class MainScreen extends StatefulWidget {
   @override
@@ -28,57 +27,72 @@ class _MainScreenState extends State<MainScreen> {
         title: Text("Menu Cards"),
         backgroundColor: Color(0xFF138880),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: List.generate(4, (index) {
-              return FutureBuilder<List<MenuItem>>(
-                future: fetchMenus(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Center(child: CircularProgressIndicator()),
-                      ),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Card(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Text('Error loading menu'),
-                      ),
-                    );
-                  } else {
-                    final menus = snapshot.data!;
-                    return Column(
-                      children: menus.map((menu) {
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 16),
-                          elevation: 4,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
+      body: FutureBuilder<List<MenuItem>>(
+        future: fetchMenus(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error loading menu items'));
+          } else {
+            final menus = snapshot.data!;
+            return ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: menus.length,
+              itemBuilder: (context, index) {
+                final menu = menus[index];
+                return Card(
+                  margin: const EdgeInsets.only(bottom: 16),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.network(
+                            menu.image,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Icon(Icons.image_not_supported, size: 80),
                           ),
-                          child: ListTile(
-                            leading: Image.network(
-                              menu.image,
-                              width: 50,
-                              height: 50,
-                              errorBuilder: (context, error, stackTrace) =>
-                                  Icon(Icons.image_not_supported),
-                            ),
-                            title: Text(menu.title),
+                        ),
+                        SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                menu.title,
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8),
+                              Text(
+                                menu.total.toString() ?? "No description available",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                            ],
                           ),
-                        );
-                      }).toList(),
-                    );
-                  }
-                },
-              );
-            }),
-          ),
-        ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }
